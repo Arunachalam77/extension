@@ -1,4 +1,6 @@
-import React from 'react';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import React, { useEffect, useRef, useState } from 'react';
 import logo from '@assets/img/logo.svg';
 import '@pages/sidepanel/SidePanel.css';
 import useStorage from '@src/shared/hooks/useStorage';
@@ -8,35 +10,160 @@ import withErrorBoundary from '@src/shared/hoc/withErrorBoundary';
 
 const SidePanel = () => {
   const theme = useStorage(exampleThemeStorage);
+  const [currentPage, setCurrentPage] = useState('');
+  const [actions, setActions] = useState([]);
+
+  const onClickMe = () => {
+    //  currently identify the site url
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      if (tabs && tabs.length > 0) {
+        const currentTab = tabs[0];
+        const currentUrl = currentTab.url;
+        console.log('Current URL:', currentUrl);
+        setCurrentPage(currentUrl);
+      }
+    });
+  };
+
+  const toggleGrayscale = () => {
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      const tab = tabs[0];
+      if (tab && tab.id !== undefined) {
+        chrome.tabs.sendMessage(tab.id, {
+          action: 'removeColorControl',
+        });
+      }
+    });
+  };
+
+  const onclear = () => {
+    setActions([]);
+  };
+
+  useEffect(() => {
+    let debounceTimer;
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (message.action === 'addActionToUI') {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {  
+          setActions(prevActions => [...prevActions, message.data]);
+        }, 1000);
+      }
+      if (message.action === "updateUI") {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          setActions(prevActions => [...prevActions, message.data]);
+        }, 1000); 
+      }
+    });
+
+    return () => {
+      clearTimeout(debounceTimer);
+    };
+  }, []);
+
+  useEffect(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      if (tabs && tabs.length > 0) {
+        const currentTab = tabs[0];
+        const currentUrl = currentTab.url;
+        console.log('Current URL:', currentUrl);
+        setCurrentPage(currentUrl);
+      }
+    });
+  }, []);
+
+  // function removeAllEventListeners() {
+  //   document.querySelectorAll('*').forEach(element => {
+  //     // Clone the element to remove listeners without triggering them
+  //     const clonedElement = element.cloneNode(true);
+  //     element.replaceWith(clonedElement);
+  //   });
+  // }
+
+  // const eventListenersMap = new WeakMap();
+
+  // function addAllEventListeners() {
+  //   document.querySelectorAll('*').forEach(element => {
+  //     const clonedElement = element.cloneNode(true);
+  //     element.parentNode.replaceChild(clonedElement, element);
+  //     if (eventListenersMap.has(element)) {
+  //       const listeners = eventListenersMap.get(element);
+  //       listeners.forEach(listener => {
+  //         clonedElement.addEventListener(listener.type, listener.callback, listener.options);
+  //       });
+  //     }
+  //   });
+  // }
+
+  const reloadPage = () => {
+    window.location.reload();
+  };
 
   return (
-    <div
-      className="App"
-      style={{
-        backgroundColor: theme === 'light' ? '#fff' : '#000',
-      }}>
-      <header className="App-header" style={{ color: theme === 'light' ? '#000' : '#fff' }}>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/pages/sidepanel/SidePanel.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: theme === 'light' && '#0281dc', marginBottom: '10px' }}>
-          Learn React!
-        </a>
+    <div className="App">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 10px' }}>
+        {/* <button onClick={removeAllEventListeners}>
+         Clear All Event Listeners
+       </button>
+       <button onClick={addAllEventListeners}>
+        Add All Event Listeners
+       </button> */}
         <button
+          onClick={toggleGrayscale}
           style={{
-            backgroundColor: theme === 'light' ? '#fff' : '#000',
-            color: theme === 'light' ? '#000' : '#fff',
-          }}
-          onClick={exampleThemeStorage.toggle}>
-          Toggle theme
+            backgroundColor: '#c4afff',
+            boxShadow: 'none',
+            border: '0px',
+            padding: '9px 7px',
+            borderRadius: '4px',
+          }}>
+          Remove Color
         </button>
-      </header>
+        <button
+          onClick={onclear}
+          style={{
+            backgroundColor: '#c4afff',
+            boxShadow: 'none',
+            border: '0px',
+            padding: '9px 7px',
+            borderRadius: '4px',
+          }}>
+          clear
+        </button>
+        <button
+          onClick={reloadPage}
+          style={{
+            backgroundColor: '#c4afff',
+            boxShadow: 'none',
+            border: '0px',
+            padding: '9px 7px',
+            borderRadius: '4px',
+          }}>
+          Reload Page
+        </button>
+      </div>
+      <div style={{ padding: '2px 10px' }}>
+        <button
+          onClick={onClickMe}
+          style={{
+            backgroundColor: '#6f90f7',
+            boxShadow: 'none',
+            border: '0px',
+            padding: '9px 7px',
+            borderRadius: '4px',
+          }}>
+          click me to current url of the page
+        </button>
+        <div>
+        <p style={{  color: '#fff',fontSize:'12px' }}>Current Page: {currentPage}</p>
+        </div>
+      </div>
+      {actions.map((action, index) => (
+        <li style={{ color: '#fff', fontWeight: '500',fontSize:'12px' }} key={index}>
+          {action}
+        </li>
+      ))}
     </div>
   );
 };

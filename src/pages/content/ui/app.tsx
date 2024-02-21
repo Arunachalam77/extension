@@ -4,6 +4,7 @@ export default function App() {
   useEffect(() => {
     console.log('content view loaded');
   }, []);
+  
 
-  return <div className="">content view</div>;
+  return <div className=""></div>;
 }

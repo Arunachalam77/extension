@@ -1,12 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-// import ReactDOM from 'react-dom/client';
-
-import '@pages/sidepanel/index.css';
+// import '@pages/popup/index.css';
+// import Popup from '@pages/popup/Popup';
 import refreshOnUpdate from 'virtual:reload-on-update-in-view';
-import SidePanel from '@pages/sidepanel/SidePanel';
+import { Card } from '.';
 
-refreshOnUpdate('pages/sidepanel');
+refreshOnUpdate('pages/card');
 
 function init() {
   const appContainer = document.querySelector('#app-container');
@@ -14,10 +13,7 @@ function init() {
     throw new Error('Can not find #app-container');
   }
   const root = createRoot(appContainer);
-  root.render(<SidePanel />);
-//   const root =ReactDOM.createRoot(document.getElementById('root'));
-// root.render(<SidePanel />);
-
+  root.render(<Card />);
 }
 
 init();

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createRoot } from 'react-dom/client';
 import App from '@pages/content/ui/app';
 import refreshOnUpdate from 'virtual:reload-on-update-in-view';
@@ -20,6 +21,8 @@ shadowRoot.appendChild(rootIntoShadow);
 const styleElement = document.createElement('style');
 styleElement.innerHTML = injectedStyle;
 shadowRoot.appendChild(styleElement);
+
+
 
 /**
  * https://github.com/Jonghakseo/chrome-extension-boilerplate-react-vite/pull/174

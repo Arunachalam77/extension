@@ -15,18 +15,19 @@ const manifest = {
   name: '__MSG_extensionName__',
   version: packageJson.version,
   description: '__MSG_extensionDescription__',
-  permissions: ['storage', 'sidePanel'],
+  permissions: ['storage', "activeTab","tabs","sidePanel", "windows"],
   side_panel: {
     default_path: 'src/pages/sidepanel/index.html',
+    openPanelOnActionClick: true
   },
+  action: {
+    default_title: "Click to open panel"
+},
+
   options_page: 'src/pages/options/index.html',
   background: {
     service_worker: 'src/pages/background/index.js',
     type: 'module',
-  },
-  action: {
-    default_popup: 'src/pages/popup/index.html',
-    default_icon: 'icon-34.png',
   },
   chrome_url_overrides: {
     newtab: 'src/pages/newtab/index.html',
